@@ -31,8 +31,11 @@ data class ElmToolchain(
     val presentableLocation: String =
             elmCompilerPath?.toString() ?: "unknown location"
 
+    /**
+     * Checks the currently configured elm compiler path. This performs file I/O.
+     */
     fun looksLikeValidToolchain(): Boolean =
-            elmCompilerPath != null && Files.isExecutable(elmCompilerPath)
+            looksLikeValidToolchainLocation(elmCompilerPath)
 
     /**
      * Attempts to locate Elm tool paths for all tools which are un-configured.
@@ -80,5 +83,13 @@ data class ElmToolchain(
          */
         fun suggest(project: Project): ElmToolchain =
                 BLANK.autoDiscoverAll(project)
+
+        /**
+         * Checks the provided path to make sure it is present and executable. We also allow a bare `elm` executable to
+         * prevent having to check the PATH.
+         * This performs file I/O.
+         */
+        fun looksLikeValidToolchainLocation(elmCompilerPath: Path?): Boolean =
+                elmCompilerPath != null && Files.isExecutable(elmCompilerPath) || elmCompilerPath.toString() == "elm"
     }
 }
